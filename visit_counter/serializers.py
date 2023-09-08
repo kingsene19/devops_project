@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from .models import Visit
 
-class VisitSerializer(serializers.ModelSerializer):
 
+class VisitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visit
-        fields = ("count",)
+        fields = ("number_of_visits",)
