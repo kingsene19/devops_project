@@ -2,51 +2,71 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build:
+
+  verification:
     runs-on: ubuntu-latest
-
+    container: python:3.8-alpine
+    env:
+      POSTGRES_USER: django_web
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: django_postgres_db
+      SECRET_KEY: django-insecure-20%uao)u62kgc1w7=+u=#0@zv&9dyxxh084l4k_ux7ag3(+az#
+      HOST: postgres
+      PORT: 5432
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env. POSTGRES_PASSWORD}}
+          POSTGRES_DB: ${{ env. POSTGRES_DB }}
+        ports:
+          - 5432:5432
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+    - name: Setup VM
+      run: |
+        apk add --update --no-cache postgresql-client
+        apk add --update --no-cache --virtual .temp-build-deps
+        apk add gcc libc-dev linux-headers postgresql-dev
+    - name: Install dependencies
+      run: |
+        pip install pip --upgrade
+        pip install -r requirements.txt
+        apk del .temp-build-deps
+    - name: Verify linting
+      run: ruff check . --fix
+    - name: Verify formating
+      run: black . --check
+    - name: Tests
+      run: |
+        coverage run manage.py test
+        coverage xml
+      env:
+        DB_USER: ${{ env.POSTGRES_USER }}
+        DB_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        DB_HOST: ${{ env.HOST }}
+        DB_NAME: ${{ env.POSTGRES_DB }}
+        DB_PORT: ${{ env.PORT }}
+        SECRET_KEY: ${{ env.SECRET_KEY }}
+    - name: Quality Gate
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-        working-directory: ./myapp
-
-      - name: Run tests
-        run: |
-          python manage.py test
-        working-directory: ./myapp
-
-      - name: Build Docker image
-        run: |
-          docker build -t myapp:latest .
-        working-directory: ./myapp
-
-      - name: Login to Docker Hub
-        run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-
-      - name: Push Docker image
-        run: |
-          docker tag myapp:latest ${{ secrets.DOCKER_REGISTRY }}/myapp:latest
-          docker push ${{ secrets.DOCKER_REGISTRY }}/myapp:latest
-        env:
-          DOCKER_REGISTRY: your-docker-registry
+  build-push-image:
+    runs-on: ubuntu-latest
+    needs: verification
+    steps:
+    - uses: actions/checkout@v3
+    - name: Dockerize
+      run: |
+        docker login -u=${{secrets.DOCKER_USERNAME }} -p=${{ secrets.DOCKER_PASSWORD }}
+        docker build -t ${{secrets.DOCKER_REGISTRY }}:latest .
+        docker push ${{secrets.DOCKER_REGISTRY }}:latest

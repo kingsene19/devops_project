@@ -17,7 +17,7 @@ Using Django we have created an application with two endpoints:
 
 - Homepage
 
-![Image](https://i.ibb.co/f2GYTQY/test.png)
+![Image](https://i.ibb.co/DkJw89g/test3.png)
 
 - Users
 
@@ -32,3 +32,45 @@ Each endpoint has been unit tested
 We use the command `coverage manage.py test` to check them
 
 ![Image](https://i.ibb.co/7QYcxb9/test2.png)
+
+### Dockerization
+
+To Dockerize the application we have followed these steps:
+
+- We write a Dockerfile to create a Docker image containing our Django application
+
+- Write docker-compose.yml file
+
+Since our application uses a Postgres database, we also need a service containing the database that the application will connect to.
+To do this, we create a docker-compose file that allows us to connect the application to the service easily by putting them in the same network inside a container.
+
+- Modify settings.py
+
+Instead of passing the credentials allowing access to the database manually, we use the methods of the **os** library to access it
+
+```python
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT", 5432),
+    }
+}
+```
+
+- Deploy
+
+To deploy we use `docker compose up` at the root of the project
+
+![Image](https://i.ibb.co/9gK35Yx/test4.png)
+![Image](https://i.ibb.co/gFmMcfc/test5.png)
+
+The application is dockerized and the container runs with our Django app and Postgres. We can then access it locally as shown in the screenshots below
+
+![Image](https://i.ibb.co/2gC138F/test6.png)
+![Image](https://i.ibb.co/RjMFLGp/test7.png)
+![Image](https://i.ibb.co/h98tXDP/test8.png)
+![Image](https://i.ibb.co/tPBhNj9/test9.png)

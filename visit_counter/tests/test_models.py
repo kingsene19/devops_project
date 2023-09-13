@@ -1,11 +1,10 @@
 from django.test import TestCase
 from visit_counter.models import Visit
 
+
 class TestModel(TestCase):
     def setUp(self):
-        self.visit = Visit.objects.create(
-            number_of_visits=1
-        )
+        self.visit = Visit.objects.create(number_of_visits=1)
 
     def testVisitIsCreated(self):
         visits = Visit.objects.all()

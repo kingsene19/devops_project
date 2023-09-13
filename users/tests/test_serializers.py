@@ -9,7 +9,7 @@ class TestSerializers(TestCase):
             "username": "jdoe123",
             "email": "test@example.com",
             "first_name": "John",
-            "last_name": "Doe"
+            "last_name": "Doe",
         }
 
         self.serializer = UserSerializer(data=self.user_data)

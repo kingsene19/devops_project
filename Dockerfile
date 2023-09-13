@@ -1,19 +1,27 @@
-FROM python:3
+FROM python:3.8-alpine
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /app
+# Créer et placer le répertoire de travail
+WORKDIR /app/
 
+# Ajouter le répertoire au niveau du répertoire créé
+ADD . /app/
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Installation des dépendences et updates
+RUN apk add --update --no-cache postgresql-client
+RUN apk add --update --no-cache --virtual .temp-build-deps \
+        && apk add gcc libc-dev linux-headers postgresql-dev \
+        && pip install --upgrade pip \
+        && pip install --no-cache-dir -r requirements.txt \
+        && apk del .temp-build-deps
 
+# Rendre le script exécutable
+RUN chmod +x /app/autorun.sh
 
-COPY . .
-
-
+# Port d'exécution de l'application
 EXPOSE 8000
 
-
-CMD ["python", "manage.py", "runserver"]
+# Démarrer l'application
+ENTRYPOINT ["sh", "/app/autorun.sh"]
