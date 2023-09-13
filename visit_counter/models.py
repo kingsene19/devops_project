@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class Visit(models.Model):
     number_of_visits = models.PositiveIntegerField(default=0)

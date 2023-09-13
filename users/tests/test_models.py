@@ -8,7 +8,7 @@ class TestModels(TestCase):
             username="jdoe123",
             email="test@example.com",
             first_name="John",
-            last_name="Doe"
+            last_name="Doe",
         )
 
     def testUserIsCreated(self):
