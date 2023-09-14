@@ -34,8 +34,3 @@ spec:
               value: django_db
             - name: DB_HOST
               value: postgres-service
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: django-secret
-                  key: key

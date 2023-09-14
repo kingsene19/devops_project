@@ -74,3 +74,90 @@ The application is dockerized and the container runs with our Django app and Pos
 ![Image](https://i.ibb.co/RjMFLGp/test7.png)
 ![Image](https://i.ibb.co/h98tXDP/test8.png)
 ![Image](https://i.ibb.co/tPBhNj9/test9.png)
+
+### CI/CD Pipeline Setup
+
+We implement a CI/CD pipeline using Github Actions which will be activated when a push or pull_request is done to the main branch.
+We have three jobs:
+- **verification** : Install dependencies, verify linting and formating, run tests
+- **build-push-image** : Build and push image to dockerhub
+- **deploy** : Deploy the application using minikube
+
+As we can see below when we make a push or pull request to the main branch the pipeline activates
+
+![Image](https://i.ibb.co/DM9p963/test10.png)
+
+The jobs then run in sequence when one succeeds the next start thanks to `needs-on` property specified in the pipeline
+
+![Image](https://i.ibb.co/FztynvB/test12.png)
+
+- Verification
+
+![Image](https://i.ibb.co/TPJdHYv/test13.png)
+![Image](https://i.ibb.co/0X66XFJ/test14.png)
+
+As we can see everything passes and we can also get information about the coverage on Sonarcloud
+
+- Build Push Image
+
+![Image](https://i.ibb.co/JdY10Cb/test15.png)
+![Image](https://i.ibb.co/SwKd3gy/test16.png)
+
+As we can it passes and we can see the image on dockerhub
+
+- Deploy
+
+![Image](https://i.ibb.co/4gL0jwM/test17.png)
+
+As we can the deployment is successful so we will do it locally as well as explain the configurations made in the next part
+
+
+### Kubernetes Deployment
+
+For the deployment we need to deploy the postgres database as well as the django app
+
+- Postgres
+
+First we create a **secrets.yml** file which contains the information about the database user and password 
+Then we create the **volume.yml** and **volume_claim.yml** for the database
+We then create the **deployment.yml** file
+Finally we create a **service.yml** file
+
+- Django
+
+Here we create the **deployment.yml** file
+Then we create the **service.yml** file
+
+- Deployment
+
+We can then deploy our application as follows
+
+![Image](https://i.ibb.co/xqyhw4C/test18.png)
+
+As we can see from the dashboard we now have two pods running for our django and postgres
+
+![Image](https://i.ibb.co/tQHrqJj/test19.png)
+
+To expose the application we use the command
+
+```bash
+kubectl port-forward --address 0.0.0.0 services/django-service 8081:80
+```
+
+![Image](https://i.ibb.co/ZGsHN0f/test20.png)
+
+As we can see the application is then available locally on port 8081 and it is also possible to access it through a computer on the same LAN by using <host_ip>:8081
+
+**Accès local**
+
+![Image](https://i.ibb.co/FHTfvC0/test21.png)
+![Image](https://i.ibb.co/2PyCVXY/test22.png)
+![Image](https://i.ibb.co/NLWtRgW/test23.png)
+
+**Accès sur machine connecté au même réseau**
+
+![Image](https://i.ibb.co/Df3vYcq/test24.png)
+![Image](https://i.ibb.co/bLK8cNV/Screenshot-2023-09-13-at-23-55-06.png)
+![Image](https://i.ibb.co/RTq94WQ/Screenshot-2023-09-13-at-23-55-26.png)
+![Image](https://i.ibb.co/P5Sr7zr/Screenshot-2023-09-13-at-23-55-34.png)
+
