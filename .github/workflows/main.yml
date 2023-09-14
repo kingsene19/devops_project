@@ -70,3 +70,22 @@ jobs:
         docker login -u=${{secrets.DOCKER_USERNAME }} -p=${{ secrets.DOCKER_PASSWORD }}
         docker build -t ${{secrets.DOCKER_REGISTRY }}:latest .
         docker push ${{secrets.DOCKER_REGISTRY }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-push-image
+    steps:
+    - uses: actions/checkout@v3
+    - name: Start minikube
+      uses: medyagh/setup-minikube@master
+    - name: Test cluster
+      run: kubectl get pods -A
+    - name: Deploy to minikube
+      run: |
+        eval $(minikube docker-env)
+        kubectl apply -f kubernetes/postgres/
+        kubectl apply -f kubernetes/django/
+    - name: Test service URL
+      run: |
+        kubectl get all
+        minikube service list
