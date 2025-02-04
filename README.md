@@ -16,22 +16,12 @@ The project can be broken down into four stages
 Using Django we have created an application with two endpoints:
 
 - Homepage
-
-![Image](https://i.ibb.co/DkJw89g/test3.png)
-
 - Users
-
-![Image](https://i.ibb.co/3cgGwq9/test.png)
-
 - Visits
-
-![Image](https://i.ibb.co/NrvDwH7/test1.png)
 
 Each endpoint has been unit tested
 
 We use the command `coverage manage.py test` to check them
-
-![Image](https://i.ibb.co/7QYcxb9/test2.png)
 
 ### Dockerization
 
@@ -63,17 +53,7 @@ DATABASES = {
 
 - Deploy
 
-To deploy we use `docker compose up` at the root of the project
-
-![Image](https://i.ibb.co/9gK35Yx/test4.png)
-![Image](https://i.ibb.co/gFmMcfc/test5.png)
-
-The application is dockerized and the container runs with our Django app and Postgres. We can then access it locally as shown in the screenshots below
-
-![Image](https://i.ibb.co/2gC138F/test6.png)
-![Image](https://i.ibb.co/RjMFLGp/test7.png)
-![Image](https://i.ibb.co/h98tXDP/test8.png)
-![Image](https://i.ibb.co/tPBhNj9/test9.png)
+To deploy we use `docker compose up` at the root of the project. The application is dockerized and the container runs with our Django app and Postgres. We can then access it locally.
 
 ### CI/CD Pipeline Setup
 
@@ -83,34 +63,13 @@ We have three jobs:
 - **build-push-image** : Build and push image to dockerhub
 - **deploy** : Deploy the application using minikube
 
-As we can see below when we make a push or pull request to the main branch the pipeline activates
-
-![Image](https://i.ibb.co/DM9p963/test10.png)
-
-The jobs then run in sequence when one succeeds the next start thanks to `needs-on` property specified in the pipeline
-
-![Image](https://i.ibb.co/FztynvB/test12.png)
+When we make a push or pull request to the main branch the pipeline activates, the jobs then run in sequence when one succeeds the next start thanks to `needs-on` property specified in the pipeline
 
 - Verification
-
-![Image](https://i.ibb.co/TPJdHYv/test13.png)
-![Image](https://i.ibb.co/0X66XFJ/test14.png)
-
-As we can see everything passes and we can also get information about the coverage on Sonarcloud
-
 - Build Push Image
-
-![Image](https://i.ibb.co/JdY10Cb/test15.png)
-![Image](https://i.ibb.co/SwKd3gy/test16.png)
-
-As we can it passes and we can see the image on dockerhub
-
 - Deploy
 
-![Image](https://i.ibb.co/4gL0jwM/test17.png)
-
-As we can the deployment is successful so we will do it locally as well as explain the configurations made in the next part
-
+Once the deployment is successful so we will do it locally as well as explain the configurations made in the next part
 
 ### Kubernetes Deployment
 
@@ -130,34 +89,10 @@ Then we create the **service.yml** file
 
 - Deployment
 
-We can then deploy our application as follows
-
-![Image](https://i.ibb.co/xqyhw4C/test18.png)
-
-As we can see from the dashboard we now have two pods running for our django and postgres
-
-![Image](https://i.ibb.co/tQHrqJj/test19.png)
-
-To expose the application we use the command
+We can then deploy our application and to expose the application on the network interface we use the command
 
 ```bash
 kubectl port-forward --address 0.0.0.0 services/django-service 8081:80
 ```
 
-![Image](https://i.ibb.co/ZGsHN0f/test20.png)
-
-As we can see the application is then available locally on port 8081 and it is also possible to access it through a computer on the same LAN by using <host_ip>:8081
-
-**Accès local**
-
-![Image](https://i.ibb.co/FHTfvC0/test21.png)
-![Image](https://i.ibb.co/2PyCVXY/test22.png)
-![Image](https://i.ibb.co/NLWtRgW/test23.png)
-
-**Accès sur machine connecté au même réseau**
-
-![Image](https://i.ibb.co/Df3vYcq/test24.png)
-![Image](https://i.ibb.co/bLK8cNV/Screenshot-2023-09-13-at-23-55-06.png)
-![Image](https://i.ibb.co/RTq94WQ/Screenshot-2023-09-13-at-23-55-26.png)
-![Image](https://i.ibb.co/P5Sr7zr/Screenshot-2023-09-13-at-23-55-34.png)
-
+The application is then available locally on port 8081 and it is also possible to access it through a computer on the same LAN by using <host_ip>:8081
